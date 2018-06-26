@@ -2,80 +2,81 @@
  * Created by JHPC on 2018/6/26.
  */
 
-$(function() {
-
-  // 基于准备好的dom，初始化echarts实例
-  var echarts_1 = echarts.init(document.querySelector('.echarts_1'));
-
-  // 指定图表的配置项和数据
-  var option = {
-    title: {
-      text: '2017年宫殿人数'
-    },
-    tooltip: {},
-    legend: {
-      data:['人数']
-    },
-    xAxis: {
-      data: ["1月","2月","3月","4月","5月","6月"]
-    },
-    yAxis: {},
-    series: [{
-      name: '人数',
-      type: 'bar',
-      data: [1000, 1500, 1800, 1200, 1000, 400]
-    }]
-  };
-
-  // 使用刚指定的配置项和数据显示图表。
-  echarts_1.setOption(option);
 
 
+$(function(){
 
-  // 基于准备好的dom，初始化echarts实例
-  var echarts_2 = echarts.init(document.querySelector('.echarts_2'));
+  var currentPage = 1;//
+  var pageSize = 5;
 
-  // 指定图表的配置项和数据
-  var option1 = {
-    title : {
-      text: '热门宫殿人口',
-      subtext: '2018年6月',
-      x:'center'
-    },
-    tooltip : {
-      trigger: 'item',
-      formatter: "{a} <br/>{b} : {c} ({d}%)"
-    },
-    legend: {
-      orient: 'vertical',
-      left: 'left',
-      data: ['太极宫','大明宫','兴庆宫','未央宫','华清宫']
-    },
-    series : [
-      {
-        name: '宫殿',
-        type: 'pie',
-        radius : '55%',
-        center: ['50%', '60%'],
-        data:[
-          {value:335, name:'太极宫'},
-          {value:310, name:'大明宫'},
-          {value:234, name:'兴庆宫'},
-          {value:135, name:'未央宫'},
-          {value:1548, name:'华清宫'}
-        ],
-        itemStyle: {
-          emphasis: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
+
+  render();
+  function render() {
+    $.ajax({
+      type: 'get',
+      url: '/user/queryUser',
+      data: {
+        page: currentPage,
+        pageSize: pageSize
+      },
+      dataType: 'json',
+      success: function (info) {
+        console.log(info);
+        var htmlStr = template('tpl',info);
+        $('tbody').html(htmlStr);
+
+
+        $("#paginator").bootstrapPaginator({
+          bootstrapMajorVersion:3,//默认是2，如果是bootstrap3版本，这个参数必填
+          currentPage: info.page,//当前页
+          totalPages: Math.ceil(info.total / info.size),//总页数
+          onPageClicked:function(a, b, c, page){
+            //为按钮绑定点击事件 page:当前点击的按钮值
+            console.log(page);
+            currentPage = page;
+            render();
           }
+        });
+      }
+    })
+  }
+
+
+  //2.启动禁用功能,点击按钮,弹出模态框(复用,用的是同一个模态框)
+  //通过事件委托来注册点击事件,效率更高
+  $('tbody').on('click','.btn',function(){
+    $('#userModal').modal('show');
+    //点击的时候,将当前选中的用户id记录在全局的currentId
+    currentId = $(this).parent().data('id');
+    //点击禁用按钮,让用户变成禁用状态,让isDelete变成0
+    isDelete = $(this).hasClass('btn-danger') ? 0 : 1;
+  });
+
+  //3.点击确认按钮,需要根据id和isDelete发送ajax请求,修改用户状态
+  $('#submitBtn').click(function(){
+    $.ajax({
+      type: 'post',
+      url: '/user/updateUser',
+      data: {
+        id: currentId,
+        isDelete: isDelete
+      },
+      dataType: 'json',
+      success: function (info) {
+        console.log(info);
+        if (info.success) {
+          $('#userModal').modal('hide');
+          render();
         }
       }
-    ]
-  };
+    })
+  })
 
-  // 使用刚指定的配置项和数据显示图表。
-  echarts_2.setOption(option1);
+
+
+
+
+
+
 
 })

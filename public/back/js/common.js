@@ -9,7 +9,7 @@ if (location.href.indexOf('login.html') === -1) {
     dataType: 'json',
     success: function(info) {
       if (info.success) {
-        console.log('当前用户已登录');
+        //console.log('当前用户已登录');
       }
       if (info.error === 400) {
         location.href = 'login.html';
@@ -27,7 +27,7 @@ $(document).ajaxStart(function() {
 $(document).ajaxStop(function() {
   setTimeout(function(){
     NProgress.done()
-  },50000)
+  },500)
 })
 
 //公共功能

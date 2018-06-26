@@ -11,7 +11,9 @@ ul {
   list-style: none;
 }
 
-
+.red {
+  color: #A94442;
+}
 
 .body_bg {
   background-color: #222D32;
@@ -146,5 +148,11 @@ ul {
 .echarts_2 {
   width: 48%;
   height: 400px;
-
 }
+
+.table.table-bordered th,
+.table.table-bordered td {
+  text-align: center;
+  vertical-align: middle;
+}
+
